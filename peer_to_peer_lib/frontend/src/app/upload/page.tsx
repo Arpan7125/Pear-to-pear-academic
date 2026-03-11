@@ -52,14 +52,16 @@ export default function UploadPage() {
     setError('');
     setUploading(true);
     try {
-      await api.createResource({
-        filename: selectedFile.name,
-        title,
-        description,
-        subject,
-        tags: tagsInput.split(',').map(t => t.trim()).filter(Boolean),
-        size: selectedFile.size,
-      }, user.id);
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('title', title);
+      formData.append('description', description);
+      formData.append('subject', subject);
+      
+      const tags = tagsInput.split(',').map(t => t.trim()).filter(Boolean);
+      formData.append('tags', tags.join(','));
+
+      await api.createResource(formData, user.id);
       setSuccess(true);
       setTitle(''); setSelectedFile(null); setDescription(''); setTagsInput('');
       if (fileInputRef.current) fileInputRef.current.value = '';

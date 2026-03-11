@@ -49,9 +49,32 @@ export default function PreviewModal({ isOpen, resource, onClose, onDownload }: 
                 </div>
               </div>
               
-              <p className="text-sm text-[var(--text-secondary)] mb-6 whitespace-pre-wrap">
-                {resource.description || 'No description provided.'}
-              </p>
+              <div className="bg-[var(--bg-input)] rounded-lg p-6 mb-6 min-h-[250px] flex flex-col shadow-inner border" style={{ borderColor: 'var(--border-subtle)' }}>
+                <div className="flex-1 space-y-3 opacity-60 pointer-events-none select-none">
+                  {/* Mock document content visualization */}
+                  <div className="h-4 bg-[var(--text-secondary)] rounded w-3/4 mb-4"></div>
+                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-full"></div>
+                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-full"></div>
+                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-5/6"></div>
+                  <br/>
+                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-full"></div>
+                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-4/5"></div>
+                  <div className="flex justify-center my-4">
+                    <div className="h-24 bg-[var(--accent-dim)] rounded w-2/3 border border-[var(--border-subtle)] flex items-center justify-center">
+                       <FileText size={32} style={{ color: 'var(--accent)', opacity: 0.5 }} />
+                    </div>
+                  </div>
+                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-full"></div>
+                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-11/12"></div>
+                </div>
+                
+                <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mb-1">Description</p>
+                  <p className="text-sm text-[var(--text-secondary)] whitespace-pre-wrap">
+                    {resource.description || 'No description provided.'}
+                  </p>
+                </div>
+              </div>
 
               <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="bg-[var(--bg-input)] p-3 rounded-lg flex items-center gap-3">

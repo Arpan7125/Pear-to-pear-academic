@@ -40,6 +40,19 @@ export default function MyFilesPage() {
   const handleDownload = async (r: Resource) => {
     if (!user) return;
     await api.downloadResource(r.id, user.id);
+    
+    // Trigger actual file download with mock content based on metadata
+    const content = `P2P Academic Library\n\nResource: ${r.title || r.filename}\nSubject: ${r.subject}\nUploaded by: ${r.uploaded_by}\n\nDescription: ${r.description || 'No description'}\n\n[This is a simulated downloaded file for the P2P network demonstration]`;
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = r.filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
     setRatingTarget(r);
   };
 

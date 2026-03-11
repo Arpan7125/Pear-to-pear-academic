@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from '@/components/ThemeToggle';
 
 import {
   LayoutDashboard,
@@ -207,8 +208,31 @@ export default function Sidebar() {
         )}
       </nav>
 
-      {/* ── User / Logout ── */}
-      <div className="floating-sidebar-footer">
+      {/* ── User & Theme / Logout ── */}
+      <div className="floating-sidebar-footer flex flex-col gap-3">
+        {/* Theme Toggle Area */}
+        <div className={`flex ${!expanded ? 'justify-center' : 'items-center justify-between px-1'} transition-all`}>
+          <AnimatePresence>
+            {expanded && (
+              <motion.span
+                className="text-[.72rem] font-bold tracking-wide uppercase"
+                style={{ color: 'var(--text-tertiary)' }}
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+              >
+                Theme
+              </motion.span>
+            )}
+          </AnimatePresence>
+          <div className={!expanded ? 'scale-[0.85]' : 'scale-100'} style={{ transition: 'transform 0.2s', transformOrigin: 'center' }}>
+            <ThemeToggle />
+          </div>
+        </div>
+
+        <div className="floating-sidebar-divider" style={{ margin: '4px 0' }} />
+
+        {/* User Info */}
         <div className={`floating-sidebar-user ${expanded ? 'expanded' : ''}`}>
           <div className="floating-sidebar-avatar">
             {user?.username?.charAt(0).toUpperCase() || '?'}

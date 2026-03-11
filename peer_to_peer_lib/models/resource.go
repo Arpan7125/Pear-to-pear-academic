@@ -37,6 +37,7 @@ type Resource struct {
 	// Academic metadata
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
+	Preview     string   `json:"preview"`        // AI-generated document preview
 	Subject     string   `json:"subject"`
 	Tags        []string `json:"tags"`           // Slice of tags (dynamic)
 	

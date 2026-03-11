@@ -33,6 +33,7 @@ export interface Resource {
     type: ResourceType;
     title: string;
     description: string;
+    preview?: string;
     subject: string;
     tags: string[];
     uploaded_by: UserID;

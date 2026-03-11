@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, FileText, Download, User, Star, Clock } from 'lucide-react';
+import { X, FileText, Download, User, Star, Clock, Sparkles } from 'lucide-react';
 import { Resource } from '@/lib/types';
 
 interface PreviewModalProps {
@@ -50,22 +50,22 @@ export default function PreviewModal({ isOpen, resource, onClose, onDownload }: 
               </div>
               
               <div className="bg-[var(--bg-input)] rounded-lg p-6 mb-6 min-h-[250px] flex flex-col shadow-inner border" style={{ borderColor: 'var(--border-subtle)' }}>
-                <div className="flex-1 space-y-3 opacity-60 pointer-events-none select-none">
-                  {/* Mock document content visualization */}
-                  <div className="h-4 bg-[var(--text-secondary)] rounded w-3/4 mb-4"></div>
-                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-full"></div>
-                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-full"></div>
-                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-5/6"></div>
-                  <br/>
-                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-full"></div>
-                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-4/5"></div>
-                  <div className="flex justify-center my-4">
-                    <div className="h-24 bg-[var(--accent-dim)] rounded w-2/3 border border-[var(--border-subtle)] flex items-center justify-center">
-                       <FileText size={32} style={{ color: 'var(--accent)', opacity: 0.5 }} />
-                    </div>
+                <div className="flex-1 flex flex-col">
+                  <div className="flex items-center gap-2 mb-3 border-b border-[var(--border-subtle)] pb-2">
+                    <Sparkles size={14} style={{ color: 'var(--accent)' }} />
+                    <span className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--accent)' }}>AI Document Preview</span>
                   </div>
-                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-full"></div>
-                  <div className="h-2 bg-[var(--text-tertiary)] rounded w-11/12"></div>
+                  {resource.preview ? (
+                    <div className="text-sm leading-relaxed text-[var(--text-primary)]" style={{ whiteSpace: 'pre-line' }}>
+                      {resource.preview}
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex flex-col items-center justify-center opacity-50 space-y-4 py-8">
+                      <FileText size={48} style={{ color: 'var(--text-tertiary)' }} />
+                      <p className="text-sm text-[var(--text-secondary)]">No AI preview available for this document.</p>
+                      <p className="text-xs text-[var(--text-tertiary)] max-w-[200px] text-center">Use the Auto-Generate feature during upload to create previews using Google Gemini.</p>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">

@@ -9,8 +9,12 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/mux"
 
@@ -190,26 +194,68 @@ func (h *APIHandler) GetLeaderboard(w http.ResponseWriter, r *http.Request) {
 
 // CreateResource handles POST /api/resources
 func (h *APIHandler) CreateResource(w http.ResponseWriter, r *http.Request) {
-	var req CreateResourceRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		writeError(w, http.StatusBadRequest, "Invalid JSON: "+err.Error())
+	// Parse multipart form
+	if err := r.ParseMultipartForm(50 << 20); err != nil { // 50 MB max
+		writeError(w, http.StatusBadRequest, "Error parsing form: "+err.Error())
 		return
 	}
 
-	// Get user ID from header (simplified auth)
+	// Get user ID from header
 	userID := models.UserID(r.Header.Get("X-User-ID"))
 	if userID == "" {
 		writeError(w, http.StatusUnauthorized, "User ID required")
 		return
 	}
 
-	resource := models.NewResource(req.Filename, req.Size, userID)
-	resource.Title = req.Title
-	resource.Description = req.Description
-	resource.Subject = req.Subject
-	resource.Tags = req.Tags
+	// Get file from form
+	file, header, err := r.FormFile("file")
+	if err != nil {
+		writeError(w, http.StatusBadRequest, "File is required")
+		return
+	}
+	defer file.Close()
+
+	// Create resource model
+	resource := models.NewResource(header.Filename, header.Size, userID)
+	resource.Title = r.FormValue("title")
+	resource.Description = r.FormValue("description")
+	resource.Preview = r.FormValue("preview")
+	resource.Subject = r.FormValue("subject")
+	
+	tagsStr := r.FormValue("tags")
+	if tagsStr != "" {
+		rawTags := strings.Split(tagsStr, ",")
+		for _, t := range rawTags {
+			trimmed := strings.TrimSpace(t)
+			if trimmed != "" {
+				resource.Tags = append(resource.Tags, trimmed)
+			}
+		}
+	}
+
+	// Ensure uploads directory exists
+	uploadDir := "./uploads"
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to create upload directory")
+		return
+	}
+
+	// Create physical file
+	filePath := filepath.Join(uploadDir, string(resource.ID)+filepath.Ext(header.Filename))
+	outFile, err := os.Create(filePath)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to save file: "+err.Error())
+		return
+	}
+	defer outFile.Close()
+
+	if _, err := io.Copy(outFile, file); err != nil {
+		writeError(w, http.StatusInternalServerError, "Failed to save file content: "+err.Error())
+		return
+	}
 
 	if err := h.libraryService.Upload(resource); err != nil {
+		os.Remove(filePath) // Clean up
 		writeError(w, http.StatusBadRequest, err.Error())
 		return
 	}
@@ -231,11 +277,17 @@ func (h *APIHandler) GetResource(w http.ResponseWriter, r *http.Request) {
 	writeSuccess(w, resource)
 }
 
-// DownloadResource handles POST /api/resources/{id}/download
+// DownloadResource handles GET and POST /api/resources/{id}/download
 func (h *APIHandler) DownloadResource(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	resourceID := models.ContentID(vars["id"])
-	userID := models.UserID(r.Header.Get("X-User-ID"))
+	
+	// Support both header and query param for user_id allowing straight browser downloads
+	userIDStr := r.Header.Get("X-User-ID")
+	if userIDStr == "" {
+		userIDStr = r.URL.Query().Get("user_id")
+	}
+	userID := models.UserID(userIDStr)
 
 	resource, err := h.libraryService.Download(resourceID, userID)
 	if err != nil {
@@ -243,7 +295,16 @@ func (h *APIHandler) DownloadResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeSuccess(w, resource)
+	// Determine file path
+	filePath := filepath.Join("./uploads", string(resource.ID)+resource.Extension)
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		writeError(w, http.StatusNotFound, "File not found on disk")
+		return
+	}
+
+	// Serve the actual file as an attachment
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+resource.Filename+"\"")
+	http.ServeFile(w, r, filePath)
 }
 
 // GetPopularResources handles GET /api/resources/popular
@@ -454,7 +515,7 @@ func (h *APIHandler) SetupRoutes(r *mux.Router) {
 	api.HandleFunc("/resources/popular", h.GetPopularResources).Methods("GET")
 	api.HandleFunc("/resources/recent", h.GetRecentResources).Methods("GET")
 	api.HandleFunc("/resources/{id}", h.GetResource).Methods("GET")
-	api.HandleFunc("/resources/{id}/download", h.DownloadResource).Methods("POST")
+	api.HandleFunc("/resources/{id}/download", h.DownloadResource).Methods("GET", "POST")
 	api.HandleFunc("/resources/{id}/rate", h.RateResource).Methods("POST")
 
 	// Search

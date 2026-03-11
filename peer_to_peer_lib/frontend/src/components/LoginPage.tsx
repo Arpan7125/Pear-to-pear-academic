@@ -294,7 +294,7 @@ export default function LoginPage() {
               <motion.div className="mt-8 pt-6 border-t border-[var(--border-subtle)]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
                 <p className="text-xs text-center text-[var(--text-tertiary)] uppercase tracking-wider font-bold mb-4">Fast Access Nodes</p>
                 <div className="grid grid-cols-2 gap-3">
-                  {demoUsers.map((u, i) => (
+                  {demoUsers.map((u) => (
                     <button
                       key={u.name}
                       onClick={() => quickLogin(u.name)}

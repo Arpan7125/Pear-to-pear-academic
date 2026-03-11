@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import { useAuth } from '@/lib/auth';
 import * as api from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, CheckCircle, AlertTriangle, FileText, Sparkles, TrendingUp, Star, Shield } from 'lucide-react';
+import { Upload, CheckCircle, AlertTriangle, FileText, Sparkles, TrendingUp, Shield } from 'lucide-react';
 
 const subjects = [
   'Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology',

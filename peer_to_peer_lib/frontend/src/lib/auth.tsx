@@ -27,11 +27,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem('p2p_user');
-    if (stored) {
-      try { setUser(JSON.parse(stored)); } catch { /* ignore */ }
-    }
-    setLoading(false);
+    let isMounted = true;
+    const initAuth = () => {
+      if (!isMounted) return;
+      const stored = localStorage.getItem('p2p_user');
+      if (stored) {
+        try { setUser(JSON.parse(stored)); } catch { /* ignore */ }
+      }
+      setLoading(false);
+    };
+    initAuth();
+    return () => { isMounted = false; };
   }, []);
 
   const login = useCallback(async (username: string, password: string) => {

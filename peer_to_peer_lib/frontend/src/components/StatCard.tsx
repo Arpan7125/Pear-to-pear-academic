@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface StatCardProps {
@@ -13,7 +13,7 @@ interface StatCardProps {
 
 function useAnimatedCounter(target: number, duration = 1200) {
   const [count, setCount] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
+  
   useEffect(() => {
     const start = performance.now();
     const step = (now: number) => {

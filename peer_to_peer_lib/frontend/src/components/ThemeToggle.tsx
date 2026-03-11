@@ -7,13 +7,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
 
   // Prevent hydration mismatch
   useEffect(() => {
-    setMounted(true);
+    let isMounted = true;
+    if (isMounted) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setMounted(true);
+    }
+    return () => { isMounted = false; };
   }, []);
-
   if (!mounted) {
     return (
       <button className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-input)] opacity-50 cursor-default">

@@ -439,7 +439,7 @@ export default function LandingPage() {
 
           {/* Feature grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {features.map((f, i) => (
+            {features.map((f) => (
               <motion.div
                 key={f.title}
                 className="group relative rounded-2xl p-6 transition-all duration-300"

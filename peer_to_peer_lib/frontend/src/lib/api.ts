@@ -76,8 +76,11 @@ export async function createResource(data: FormData, userId: string) {
 }
 
 export async function downloadResource(id: string, userId: string) {
-    // Simply open the download URL in a new tab/window instead of fetching JSON
-    window.location.href = `${BASE_URL}/resources/${id}/download?user_id=${userId}`;
+    // On serverless, we can't serve physical files. Instead, hit the download API
+    // to register the download and show a confirmation.
+    const result = await fetchJSON<import('./types').Resource>(`/resources/${id}/download?user_id=${userId}`);
+    alert(`Download registered for: ${result.filename}\n\nIn a production environment with file storage (e.g., Cloud Storage), this would trigger an actual file download.`);
+    return result;
 }
 
 export async function rateResource(id: string, rating: number, comment = '', userId?: string) {

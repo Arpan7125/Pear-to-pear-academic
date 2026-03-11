@@ -1,7 +1,8 @@
 // API Client for P2P Academic Library
-// Connects to Go backend at /api (proxied via Next.js rewrites)
+// In dev: proxied via Next.js rewrites to localhost:8080
+// In production: set NEXT_PUBLIC_API_URL to your deployed Go backend
 
-const BASE_URL = '/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
     const { headers: customHeaders, ...rest } = options ?? {};

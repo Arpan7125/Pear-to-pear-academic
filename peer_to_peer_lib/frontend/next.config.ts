@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
+  // Note: rewrites only work in dev mode (not in static export)
   async rewrites() {
     return [
       {
@@ -12,3 +17,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

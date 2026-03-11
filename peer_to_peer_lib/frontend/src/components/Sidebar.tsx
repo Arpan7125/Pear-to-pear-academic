@@ -3,25 +3,29 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-import { 
-  LayoutDashboard, 
-  Library, 
-  Search, 
-  Upload, 
-  FolderOpen, 
-  Users, 
-  BarChart2, 
-  Settings, 
-  LogOut, 
+import {
+  LayoutDashboard,
+  Library,
+  Search,
+  Upload,
+  FolderOpen,
+  Users,
+  BarChart2,
+  Settings,
+  LogOut,
   Trophy,
   Zap,
+  UserCircle,
+  ChevronRight,
+  ChevronLeft,
 } from 'lucide-react';
 
-/* ── Lucide icons ── */
 const icons: Record<string, React.ReactNode> = {
   dashboard: <LayoutDashboard size={20} strokeWidth={1.8} />,
+  profile: <UserCircle size={20} strokeWidth={1.8} />,
   library: <Library size={20} strokeWidth={1.8} />,
   search: <Search size={20} strokeWidth={1.8} />,
   upload: <Upload size={20} strokeWidth={1.8} />,
@@ -36,8 +40,8 @@ const icons: Record<string, React.ReactNode> = {
 };
 
 const userNav = [
-  { name: 'Dashboard', href: '/', icon: 'dashboard' },
-  { name: 'Browse Library', href: '/library', icon: 'library' },
+  { name: 'Profile', href: '/profile', icon: 'profile' },
+  { name: 'Library', href: '/library', icon: 'library' },
   { name: 'Search', href: '/search', icon: 'search' },
   { name: 'My Files', href: '/my-files', icon: 'myfiles' },
   { name: 'Upload', href: '/upload', icon: 'upload' },
@@ -46,90 +50,155 @@ const userNav = [
 ];
 
 const adminNav = [
-  { name: 'Admin Dashboard', href: '/admin', icon: 'analytics' },
-  { name: 'Manage Users', href: '/admin/users', icon: 'users' },
-  { name: 'Manage Resources', href: '/admin/resources', icon: 'resources' },
-  { name: 'Network Stats', href: '/admin/stats', icon: 'settings' },
+  { name: 'Dashboard', href: '/admin', icon: 'analytics' },
+  { name: 'Users', href: '/admin/users', icon: 'users' },
+  { name: 'Resources', href: '/admin/resources', icon: 'resources' },
+  { name: 'Stats', href: '/admin/stats', icon: 'settings' },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, isAdmin, logout } = useAuth();
+  const [expanded, setExpanded] = useState(false);
 
   return (
-    <aside className="sidebar">
+    <motion.aside
+      className="floating-sidebar"
+      animate={{ width: expanded ? 220 : 68 }}
+      transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] as const }}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+    >
       {/* ── Logo ── */}
-      <div className="p-6 pb-5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <div
-              className="absolute inset-0 rounded-xl"
-              style={{
-                background: 'linear-gradient(135deg, var(--accent), var(--violet))',
-                filter: 'blur(8px)',
-                opacity: 0.3,
-              }}
-            />
-            <div
-              className="relative w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(135deg, var(--accent), #04b490)',
-                boxShadow: '0 0 20px rgba(6, 214, 160, 0.2)',
-              }}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-inverse)" strokeWidth={2.2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-            </div>
-          </div>
-          <div>
-            <h1 className="font-bold text-[.95rem] leading-tight" style={{ color: 'var(--text-primary)' }}>Knowledge Exchange</h1>
-            <p className="text-[.68rem] tracking-widest" style={{ color: 'var(--text-tertiary)' }}>P2P ACADEMIC LIBRARY</p>
-          </div>
+      <div className="floating-sidebar-logo">
+        <div className="floating-sidebar-logo-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2.2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+          </svg>
         </div>
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              className="overflow-hidden whitespace-nowrap"
+              initial={{ opacity: 0, width: 0 }}
+              animate={{ opacity: 1, width: 'auto' }}
+              exit={{ opacity: 0, width: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <span className="text-[.82rem] font-bold" style={{ color: 'var(--text-primary)' }}>
+                Knowledge Exchange
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* ── Navigation ── */}
-      <nav className="flex-1 p-4 space-y-0.5 overflow-y-auto">
-        <p className="section-title mb-3 px-3">MENU</p>
-        {userNav.map((item, i) => {
+      {/* ── Expand toggle ── */}
+      <button
+        className="floating-sidebar-toggle"
+        onClick={() => setExpanded(!expanded)}
+        title={expanded ? 'Collapse' : 'Expand'}
+      >
+        {expanded ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+      </button>
+
+      {/* ── Nav Links ── */}
+      <nav className="floating-sidebar-nav hide-scrollbar">
+        {userNav.map((item) => {
           const active = pathname === item.href;
           return (
-            <Link key={item.name} href={item.href} className={`sidebar-link ${active ? 'active' : ''}`}>
-              <span className="nav-icon">{icons[item.icon]}</span>
-              <span>{item.name}</span>
-              {active && (
-                <motion.span
-                  layoutId="sidebar-active-dot"
-                  className="ml-auto w-1.5 h-1.5 rounded-full"
-                  style={{ background: 'var(--accent)', boxShadow: '0 0 6px rgba(6, 214, 160, 0.5)' }}
-                  transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                />
+            <Link key={item.name} href={item.href} className="floating-sidebar-tooltip-wrapper">
+              <motion.div
+                className={`floating-sidebar-link ${active ? 'active' : ''}`}
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <span className="floating-sidebar-icon">{icons[item.icon]}</span>
+                <AnimatePresence>
+                  {expanded && (
+                    <motion.span
+                      className="floating-sidebar-label"
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: 'auto' }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {item.name}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+                {active && (
+                  <motion.div
+                    className="floating-sidebar-active-indicator"
+                    layoutId="floating-active"
+                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                  />
+                )}
+              </motion.div>
+
+              {/* Tooltip (collapsed only) */}
+              {!expanded && (
+                <div className="floating-sidebar-tooltip">{item.name}</div>
               )}
             </Link>
           );
         })}
 
+        {/* ── Admin section ── */}
         {isAdmin && (
           <>
-            <div className="my-3" style={{ borderTop: '1px solid var(--border-subtle)' }} />
-            <p className="section-title mb-3 px-3 flex items-center gap-1.5">
-              <Zap size={11} className="text-[var(--danger)]" />
-              ADMIN
-            </p>
-            {adminNav.map(item => {
+            <div className="floating-sidebar-divider" />
+            <AnimatePresence>
+              {expanded && (
+                <motion.p
+                  className="floating-sidebar-section-label"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Zap size={10} style={{ color: 'var(--danger)' }} />
+                  ADMIN
+                </motion.p>
+              )}
+            </AnimatePresence>
+            {!expanded && (
+              <div className="flex justify-center py-0.5">
+                <Zap size={10} style={{ color: 'var(--danger)' }} />
+              </div>
+            )}
+            {adminNav.map((item) => {
               const active = pathname === item.href;
               return (
-                <Link key={item.name} href={item.href} className={`sidebar-link ${active ? 'active' : ''}`}>
-                  <span className="nav-icon">{icons[item.icon]}</span>
-                  <span>{item.name}</span>
-                  {active && (
-                    <motion.span
-                      layoutId="sidebar-admin-dot"
-                      className="ml-auto w-1.5 h-1.5 rounded-full"
-                      style={{ background: 'var(--danger)', boxShadow: '0 0 6px rgba(244, 63, 94, 0.5)' }}
-                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                    />
+                <Link key={item.name} href={item.href} className="floating-sidebar-tooltip-wrapper">
+                  <motion.div
+                    className={`floating-sidebar-link ${active ? 'active' : ''}`}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <span className="floating-sidebar-icon">{icons[item.icon]}</span>
+                    <AnimatePresence>
+                      {expanded && (
+                        <motion.span
+                          className="floating-sidebar-label"
+                          initial={{ opacity: 0, width: 0 }}
+                          animate={{ opacity: 1, width: 'auto' }}
+                          exit={{ opacity: 0, width: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {item.name}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                    {active && (
+                      <motion.div
+                        className="floating-sidebar-active-indicator admin"
+                        layoutId="floating-admin-active"
+                        transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                      />
+                    )}
+                  </motion.div>
+                  {!expanded && (
+                    <div className="floating-sidebar-tooltip">{item.name}</div>
                   )}
                 </Link>
               );
@@ -138,51 +207,45 @@ export default function Sidebar() {
         )}
       </nav>
 
-      {/* ── Online Status Indicator ── */}
-      <div className="px-5 pb-2">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: 'rgba(6, 214, 160, 0.05)', border: '1px solid rgba(6, 214, 160, 0.08)' }}>
-          <span className="status-dot online" />
-          <span className="text-[.72rem] font-medium" style={{ color: 'var(--accent)' }}>System Online</span>
-        </div>
-      </div>
-
       {/* ── User / Logout ── */}
-      <div className="p-4 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
-        <div className="flex items-center gap-3">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold"
-            style={{
-              background: 'linear-gradient(135deg, var(--accent), #04b490)',
-              color: 'var(--text-inverse)',
-              boxShadow: '0 0 12px rgba(6, 214, 160, 0.15)',
-            }}
-          >
+      <div className="floating-sidebar-footer">
+        <div className={`floating-sidebar-user ${expanded ? 'expanded' : ''}`}>
+          <div className="floating-sidebar-avatar">
             {user?.username?.charAt(0).toUpperCase() || '?'}
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user?.username}</p>
-            <p className="text-[.68rem] font-medium" style={{ color: isAdmin ? 'var(--danger)' : 'var(--accent)' }}>
-              {isAdmin ? '⚡ Admin' : user?.classification || 'User'}
-            </p>
-          </div>
-          <button
-            onClick={logout}
-            className="p-2 rounded-xl transition-all duration-200"
-            style={{ color: 'var(--text-tertiary)' }}
-            onMouseEnter={e => {
-              e.currentTarget.style.color = 'var(--danger)';
-              e.currentTarget.style.background = 'var(--danger-dim)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.color = 'var(--text-tertiary)';
-              e.currentTarget.style.background = 'transparent';
-            }}
-            title="Logout"
-          >
-            {icons.logout}
-          </button>
+          <AnimatePresence>
+            {expanded && (
+              <motion.div
+                className="overflow-hidden whitespace-nowrap min-w-0 flex-1"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <p className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user?.username}</p>
+                <p className="text-[.6rem] font-medium" style={{ color: isAdmin ? 'var(--danger)' : 'var(--accent)' }}>
+                  {isAdmin ? '\u26A1 Admin' : user?.classification || 'User'}
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {expanded && (
+              <motion.button
+                onClick={logout}
+                className="floating-sidebar-logout"
+                title="Logout"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                whileHover={{ scale: 1.1 }}
+              >
+                <LogOut size={15} />
+              </motion.button>
+            )}
+          </AnimatePresence>
         </div>
       </div>
-    </aside>
+    </motion.aside>
   );
 }

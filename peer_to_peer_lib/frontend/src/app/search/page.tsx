@@ -1,14 +1,18 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { SearchResults } from '@/lib/types';
+import { SearchResults, Resource } from '@/lib/types';
 import * as api from '@/lib/api';
 import ResourceCard from '@/components/ResourceCard';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, Sparkles } from 'lucide-react';
+import { Search, Filter, Sparkles, Check } from 'lucide-react';
+import { useAuth } from '@/lib/auth';
+import RatingModal from '@/components/RatingModal';
+import PreviewModal from '@/components/PreviewModal';
 
 export default function SearchPage() {
+  const { user } = useAuth();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<SearchResults | null>(null);
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -17,6 +21,10 @@ export default function SearchPage() {
 
   const [subjectFilter, setSubjectFilter] = useState('');
   const [sortBy, setSortBy] = useState('');
+
+  const [ratingTarget, setRatingTarget] = useState<Resource | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<Resource | null>(null);
+  const [downloadToast, setDownloadToast] = useState<string | null>(null);
 
   const fetchSuggestions = useCallback(async (q: string) => {
     if (q.length < 2) { setSuggestions([]); return; }
@@ -55,6 +63,27 @@ export default function SearchPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subjectFilter, sortBy]);
 
+  const handleDownload = async (r: Resource) => {
+    if (!user) return;
+    try {
+      await api.downloadResource(r.id, user.id);
+      if (results && results.results) {
+        setResults({
+          ...results,
+          results: results.results.map(sr => sr.resource.id === r.id ? { ...sr, resource: { ...sr.resource, download_count: sr.resource.download_count + 1 } } : sr)
+        });
+      }
+      setDownloadToast(r.title || r.filename);
+      setTimeout(() => setDownloadToast(null), 3500);
+      if (r.uploaded_by !== user.id) {
+        setTimeout(() => setRatingTarget(r), 1000);
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to register download');
+    }
+  };
+
   const subjects = ['Computer Science','Mathematics','Physics','Chemistry','Biology','Electronics','Mechanical','Civil','Literature','History','Economics','Other'];
 
   return (
@@ -79,7 +108,7 @@ export default function SearchPage() {
               onKeyDown={e => e.key === 'Enter' && doSearch(query, subjectFilter, sortBy)}
               onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-              placeholder="Search resources, subjects, tags…"
+              placeholder="Search resources, subjects, tags�"
               className="search-input w-full"
             />
             <AnimatePresence>
@@ -98,7 +127,7 @@ export default function SearchPage() {
                       animate={{ opacity: 1 }}
                       transition={{ delay: i * 0.04 }}
                       onMouseDown={() => { setQuery(s); doSearch(s, subjectFilter, sortBy); }}
-                      className="w-full px-4 py-2.5 text-sm text-left transition-colors flex items-center gap-2"
+                      className="w-full px-4 py-2.5 text-sm text-left transition-colors flex items-center gap-2 hover:bg-[var(--accent-dim)]"
                       style={{ color: 'var(--text-secondary)' }}
                     >
                       <Search size={13} className="opacity-40 shrink-0" />
@@ -155,8 +184,12 @@ export default function SearchPage() {
               <div className="space-y-3">
                 {results.results?.map((sr, i) => (
                   <motion.div key={sr.resource.id} className="relative group" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                    <ResourceCard resource={sr.resource} />
-                    <div className="absolute top-4 right-4 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                    <ResourceCard 
+                      resource={sr.resource} 
+                      onDownload={() => handleDownload(sr.resource)}
+                      onPreview={() => setPreviewTarget(sr.resource)}
+                    />
+                    <div className="absolute top-4 right-4 flex gap-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity pointer-events-none">
                       <span className="text-xs font-mono px-2 py-1 rounded-md" style={{ background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid rgba(6,214,160,0.2)' }}>
                         match {(sr.relevance * 100).toFixed(0)}%
                       </span>
@@ -185,6 +218,58 @@ export default function SearchPage() {
           )}
         </div>
       </div>
+      
+      {ratingTarget && (
+        <RatingModal
+          isOpen={!!ratingTarget}
+          resourceTitle={ratingTarget.title || ratingTarget.filename}
+          onClose={() => setRatingTarget(null)}
+          onRate={async (rating, comment) => {
+            if (!user) return;
+            try {
+              await api.rateResource(ratingTarget.id, rating, comment, user.id);
+              doSearch(query, subjectFilter, sortBy);
+              setRatingTarget(null);
+            } catch (e) {
+              console.error(e);
+              alert('Error saving rating');
+            }
+          }}
+        />
+      )}
+
+      {previewTarget && (
+        <PreviewModal
+          isOpen={true}
+          resource={previewTarget}
+          onClose={() => setPreviewTarget(null)}
+          onDownload={() => handleDownload(previewTarget)}
+        />
+      )}
+
+      <AnimatePresence>
+        {downloadToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-xl shadow-lg flex items-center gap-3 border"
+            style={{ background: 'var(--bg-card)', borderColor: 'var(--accent)', color: 'var(--text-primary)' }}
+          >
+            <div className="bg-[var(--accent)] text-white p-1 rounded-full">
+              <Check size={14} />
+            </div>
+            <div>
+              <p className="text-sm font-medium">Download Started</p>
+              <p className="text-xs text-slate-500 opacity-80 max-w-[200px] truncate">{downloadToast}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
+
+
+

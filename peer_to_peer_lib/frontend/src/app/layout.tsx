@@ -17,11 +17,6 @@ export default function RootLayout({
   return (
     <html lang="en" className="">
       <body>
-        {/* Ambient mesh gradient layers */}
-        <div className="mesh-bg" aria-hidden="true" />
-        <div className="mesh-bg-extra" aria-hidden="true" />
-        <div className="grid-pattern" aria-hidden="true" />
-
         <AuthProvider>
           <AppShell>{children}</AppShell>
         </AuthProvider>

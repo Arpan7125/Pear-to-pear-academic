@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth';
-import LoginPage from '@/components/LoginPage';
+import LandingPage from '@/components/LandingPage';
 import Sidebar from '@/components/Sidebar';
 import { usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -33,8 +33,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <div
               className="relative w-16 h-16 rounded-2xl flex items-center justify-center"
               style={{
-                background: 'linear-gradient(135deg, var(--accent), #04b490)',
-                boxShadow: '0 0 30px rgba(6, 214, 160, 0.25)',
+                background: 'linear-gradient(135deg, var(--accent), var(--accent-bright))',
+                boxShadow: '0 0 30px var(--accent-dim)',
               }}
             >
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--text-inverse)" strokeWidth={2.2}>
@@ -43,7 +43,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           {/* Animated loading bar */}
-          <div className="w-48 h-1 mx-auto rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+          <div className="w-48 h-1 mx-auto rounded-full overflow-hidden" style={{ background: 'rgba(0,0,0,0.06)' }}>
             <motion.div
               className="h-full rounded-full"
               style={{ background: 'linear-gradient(90deg, var(--accent), var(--violet), var(--accent))' }}
@@ -58,19 +58,15 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    return (
-      <div className="relative z-10 min-h-screen flex items-center justify-center">
-        <LoginPage />
-      </div>
-    );
+    return <LandingPage />;
   }
 
   return (
-    <div className="relative z-10 flex min-h-screen">
+    <div className="relative z-10 min-h-screen">
       <Sidebar />
       <main
-        className="flex-1 min-h-screen relative"
-        style={{ marginLeft: 'var(--sidebar-w)', padding: '2rem 2.5rem' }}
+        className="min-h-screen relative overflow-x-hidden"
+        style={{ padding: '2rem 2.5rem 2rem calc(68px + 1.5rem)' }}
       >
         <AnimatePresence mode="wait">
           <motion.div

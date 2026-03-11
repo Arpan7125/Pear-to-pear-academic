@@ -86,7 +86,7 @@ export default function LoginPage() {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       >
-        <div className="card-glow" style={{ padding: '2.5rem 2rem' }}>
+        <div className="card" style={{ padding: '2.5rem 2rem' }}>
           {/* Logo */}
           <div className="text-center mb-8">
             <motion.div
@@ -137,7 +137,7 @@ export default function LoginPage() {
           </div>
 
           {/* Tabs */}
-          <div className="flex mb-6 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-subtle)' }}>
+          <div className="flex mb-6 p-1 rounded-xl" style={{ background: 'var(--bg-input)', border: '1px solid var(--border-subtle)' }}>
             {['Sign In', 'Sign Up'].map((label, i) => {
               const isActive = i === 0 ? !isSignup : isSignup;
               return (
@@ -283,3 +283,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
+

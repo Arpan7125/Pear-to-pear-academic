@@ -77,11 +77,7 @@ export default function AdminDashboard() {
     setRecentResources(prev => [created, ...prev].slice(0, 5));
   };
 
-  const handleDownload = async (r: Resource) => {
-    if (!user) return;
-    await api.downloadResource(r.id, user.id);
-    setRatingTarget(r);
-  };
+  const handleDownload = async (r: Resource) => { if (!user) return; await api.downloadResource(r.id, user.id); if (r.uploaded_by !== user.id) { setRatingTarget(r); } };
 
   const handleRate = async (rating: number, comment: string) => {
     if (!ratingTarget) return;
@@ -274,3 +270,5 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+

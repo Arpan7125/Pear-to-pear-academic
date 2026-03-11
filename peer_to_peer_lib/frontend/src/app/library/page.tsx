@@ -9,6 +9,7 @@ import StatCard from '@/components/StatCard';
 import LoadingSkeleton from '@/components/LoadingSkeleton';
 import UploadModal from '@/components/UploadModal';
 import RatingModal from '@/components/RatingModal';
+import PreviewModal from '@/components/PreviewModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Download, Star, FolderOpen, Plus, SlidersHorizontal, CheckCircle } from 'lucide-react';
 
@@ -29,6 +30,7 @@ export default function LibraryPage() {
   const [sortBy, setSortBy] = useState<'rating' | 'downloads' | 'recent'>('rating');
   const [uploadOpen, setUploadOpen] = useState(false);
   const [ratingTarget, setRatingTarget] = useState<Resource | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<Resource | null>(null);
   const [downloadToast, setDownloadToast] = useState<string | null>(null);
 
   const handleDownload = async (r: Resource) => {
@@ -38,7 +40,11 @@ export default function LibraryPage() {
       setResources(prev => prev.map(res => res.id === r.id ? { ...res, download_count: res.download_count + 1 } : res));
       setDownloadToast(r.title || r.filename);
       setTimeout(() => setDownloadToast(null), 3000);
-      setRatingTarget(r);
+      
+      // Allow rating only if user is not the uploader
+      if (r.uploaded_by !== user.id) {
+        setRatingTarget(r);
+      }
     } catch (err) {
       console.error('Download failed:', err);
     }
@@ -155,7 +161,11 @@ export default function LibraryPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.22 + i * 0.04 }}
             >
-              <ResourceCard resource={r} onDownload={() => handleDownload(r)} />
+              <ResourceCard 
+                resource={r} 
+                onDownload={() => handleDownload(r)} 
+                onPreview={() => setPreviewTarget(r)}
+              />
             </motion.div>
           ))}
           {filtered.length === 0 && (
@@ -210,6 +220,15 @@ export default function LibraryPage() {
       }} />
 
       {/* Download toast */}
+      <PreviewModal
+        isOpen={!!previewTarget}
+        resource={previewTarget}
+        onClose={() => setPreviewTarget(null)}
+        onDownload={() => {
+          if (previewTarget) handleDownload(previewTarget);
+        }}
+      />
+
       <AnimatePresence>
         {downloadToast && (
           <motion.div
@@ -217,7 +236,7 @@ export default function LibraryPage() {
             animate={{ opacity: 1, y: 0, x: '-50%' }}
             exit={{ opacity: 0, y: 20, x: '-50%' }}
             className="fixed bottom-6 left-1/2 z-50 flex items-center gap-2.5 px-5 py-3 rounded-xl shadow-lg"
-            style={{ background: 'rgba(6,214,160,0.15)', border: '1px solid rgba(6,214,160,0.3)', backdropFilter: 'blur(12px)' }}
+              style={{ background: 'var(--bg-card-solid)', border: '1px solid var(--accent)' }}
           >
             <CheckCircle size={16} style={{ color: 'var(--accent)' }} />
             <span className="text-sm font-medium" style={{ color: 'var(--accent)' }}>Downloaded: {downloadToast}</span>
@@ -227,3 +246,4 @@ export default function LibraryPage() {
     </div>
   );
 }
+

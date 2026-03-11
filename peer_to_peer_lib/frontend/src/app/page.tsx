@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Resource, User, NetworkStats, LibraryStats } from '@/lib/types';
 import * as api from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -15,7 +16,15 @@ import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { Users, FileText, Download, Star, Plus, Activity, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 
 export default function Dashboard() {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isAdmin, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  // Redirect non-admin users to their profile
+  useEffect(() => {
+    if (!authLoading && currentUser && !isAdmin) {
+      router.replace('/profile');
+    }
+  }, [authLoading, currentUser, isAdmin, router]);
   const [popularResources, setPopularResources] = useState<Resource[]>([]);
   const [recentResources, setRecentResources] = useState<Resource[]>([]);
   const [topUsers, setTopUsers] = useState<User[]>([]);
@@ -152,7 +161,7 @@ export default function Dashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.25 + i * 0.06 }}
               >
-                <ResourceCard resource={r} onDownload={() => handleDownload(r)} />
+                <ResourceCard resource={r} onDownload={() => handleDownload(r)} onPreview={() => { /* Not implemented on dashboard to keep simple */ }} />
               </motion.div>
             ))}
             {popularResources.length === 0 && (
@@ -315,3 +324,4 @@ export default function Dashboard() {
     </div>
   );
 }
+

@@ -81,10 +81,13 @@ export async function downloadResource(id: string, userId: string) {
     });
 }
 
-export async function rateResource(id: string, rating: number, comment = '') {
+export async function rateResource(id: string, rating: number, comment = '', userId?: string) {
+    // If no userId is provided, try to get it from local storage
+    const uId = userId || (typeof window !== 'undefined' && localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!).id : '');
+    
     return fetchJSON<{ resource_id: string; new_rating: number }>(`/resources/${id}/rate`, {
         method: 'POST',
-        body: JSON.stringify({ rating, comment }),
+        body: JSON.stringify({ rating, comment, user_id: uId }),
     });
 }
 

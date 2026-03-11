@@ -2,19 +2,20 @@
 
 import { Resource } from '@/lib/types';
 import { motion } from 'framer-motion';
-import { Download } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 
 interface ResourceCardProps {
   resource: Resource;
   onDownload?: () => void;
+  onPreview?: () => void;
 }
 
 const typeConfig: Record<string, { bg: string; color: string; label: string; glow: string }> = {
-  pdf:          { bg: 'rgba(244,63,94,.1)', color: '#f43f5e', label: 'PDF', glow: 'rgba(244,63,94,.2)' },
-  document:     { bg: 'rgba(56,189,248,.1)', color: '#38bdf8', label: 'DOC', glow: 'rgba(56,189,248,.2)' },
-  presentation: { bg: 'rgba(251,191,36,.1)', color: '#fbbf24', label: 'PPT', glow: 'rgba(251,191,36,.2)' },
-  spreadsheet:  { bg: 'rgba(6,214,160,.1)',  color: '#06d6a0', label: 'XLS', glow: 'rgba(6,214,160,.2)' },
-  other:        { bg: 'rgba(255,255,255,.04)', color: '#8892a8', label: 'FILE', glow: 'rgba(255,255,255,.08)' },
+  pdf:          { bg: 'rgba(217,48,37,.1)', color: '#d93025', label: 'PDF', glow: 'rgba(217,48,37,.2)' },
+  document:     { bg: 'rgba(26,115,232,.1)', color: '#1a73e8', label: 'DOC', glow: 'rgba(26,115,232,.2)' },
+  presentation: { bg: 'rgba(249,171,0,.1)', color: '#f9ab00', label: 'PPT', glow: 'rgba(249,171,0,.2)' },
+  spreadsheet:  { bg: 'rgba(30,142,62,.1)',  color: '#1e8e3e', label: 'XLS', glow: 'rgba(30,142,62,.2)' },
+  other:        { bg: 'rgba(0,0,0,.04)', color: '#5f6368', label: 'FILE', glow: 'rgba(0,0,0,.08)' },
 };
 
 function fmtSize(b: number) {
@@ -23,7 +24,7 @@ function fmtSize(b: number) {
   return (b / 1048576).toFixed(1) + ' MB';
 }
 
-export default function ResourceCard({ resource, onDownload }: ResourceCardProps) {
+export default function ResourceCard({ resource, onDownload, onPreview }: ResourceCardProps) {
   const cfg = typeConfig[resource.type] || typeConfig.other;
 
   return (
@@ -89,18 +90,33 @@ export default function ResourceCard({ resource, onDownload }: ResourceCardProps
           ))}
           <span className="text-[.68rem] ml-1" style={{ color: 'var(--text-tertiary)' }}>({resource.total_ratings})</span>
         </div>
-        {onDownload && (
-          <motion.button
-            onClick={onDownload}
-            className="btn btn-primary text-xs py-1.5 px-4 rounded-xl"
-            style={{ fontSize: '.78rem' }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Download size={13} strokeWidth={2.2} />
-            Download
-          </motion.button>
-        )}
+        <div className="flex gap-2">
+          {onPreview && (
+            <motion.button
+              onClick={onPreview}
+              className="btn btn-secondary text-xs py-1.5 px-3 rounded-xl"
+              style={{ fontSize: '.78rem' }}
+              title="Preview"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Eye size={13} strokeWidth={2.2} />
+              Preview
+            </motion.button>
+          )}
+          {onDownload && (
+            <motion.button
+              onClick={onDownload}
+              className="btn btn-primary text-xs py-1.5 px-4 rounded-xl"
+              style={{ fontSize: '.78rem' }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <Download size={13} strokeWidth={2.2} />
+              Download
+            </motion.button>
+          )}
+        </div>
       </div>
     </motion.div>
   );

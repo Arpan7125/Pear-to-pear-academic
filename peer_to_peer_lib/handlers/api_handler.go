@@ -64,6 +64,7 @@ type CreateResourceRequest struct {
 }
 
 type RateResourceRequest struct {
+	UserID  string  `json:"user_id"`
 	Rating  float64 `json:"rating"`
 	Comment string  `json:"comment"`
 }
@@ -360,9 +361,20 @@ func (h *APIHandler) RateResource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if req.UserID == "" {
+		writeError(w, http.StatusBadRequest, "user_id is required")
+		return
+	}
+
 	resource, err := h.libraryService.GetResource(resourceID)
 	if err != nil {
 		writeError(w, http.StatusNotFound, err.Error())
+		return
+	}
+
+	// Validate user cannot rate their own content
+	if string(resource.UploadedBy) == req.UserID {
+		writeError(w, http.StatusForbidden, "Users cannot rate their own uploaded content")
 		return
 	}
 

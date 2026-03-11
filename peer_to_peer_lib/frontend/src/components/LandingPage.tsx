@@ -158,7 +158,7 @@ export default function LandingPage() {
       <div className="min-h-screen" style={{ background: 'var(--bg-root)' }}>
         {/* Minimal nav */}
         <nav className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-8 py-4"
-          style={{ background: 'rgba(248,249,250,0.9)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border-subtle)' }}>
+          style={{ background: 'var(--bg-card)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border-subtle)' }}>
           <button onClick={() => setShowLogin(false)} className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-xl flex items-center justify-center"
               style={{ background: 'linear-gradient(135deg, var(--accent), #04b490)' }}>
@@ -190,7 +190,7 @@ export default function LandingPage() {
       <motion.nav
         className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-8 py-4 transition-all duration-300"
         style={{
-          background: scrolled ? 'rgba(248,249,250,0.92)' : 'transparent',
+          background: scrolled ? 'var(--bg-card)' : 'transparent',
           backdropFilter: scrolled ? 'blur(16px)' : 'none',
           borderBottom: scrolled ? '1px solid var(--border-subtle)' : '1px solid transparent',
         }}
